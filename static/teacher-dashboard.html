@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css"> -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+        <!-- <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet"> -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js" integrity="sha384-7+zCNj/IqJ95wo16oMtfsKbZ9ccEh31eOz1HGyDuCQ6wgnyJNSYdrPa03rtR1zdB" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js" integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13" crossorigin="anonymous"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+        <script src="{{url_for('static',filename='js/build-class-ajax.js')}}" type="text/javascript"></script>
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    </head>
+    <body>
+        <!-- User detail -->
+        <div class="row mt-2">
+            <div class="col-12 text-sm-center mt-2">
+                <form action="{{url_for('logout',role='Teacher')}}">
+                  <button class="btn btn-md btn-primary mx-2">Logout</button>
+                </form>
+              </div>
+            <div class="col-12 text-sm-center mt-2">
+                <form action="{{url_for('Home')}}">
+                  <button class="btn btn-md btn-primary mx-2">Home</button>
+                </form>
+            </div>
+            <div class="col-12 text-center">
+                <span id="time"></span>
+                <script type="text/javascript">
+                    $(document).ready(function(){
+                        var today = new Date();
+                        var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+                        var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+                        var dateTime = date+' '+time;
+                        $("#time").html(dateTime)
+                    })
+                </script>
+            </div>
+            <div class="userdetail col-12 text-center mt-2">
+                <p>
+                  teacher:{{current_user.name}} {{current_user.lastname}}
+                </p>
+            </div>
+        </div>
+    <!-- end User detail-->
+        <div class="row mt-2">
+            <!-- Class Members -->
+            <div class="col-12">
+                <div class="panel-group">
+                    <div class="panel panel-default">
+                      <div class="panel-heading">
+                        <h4 class="panel-title text-center">
+                          <a data-toggle="collapse" href="#collapse1">Students</a>
+                        </h4>
+                      </div>
+                      <div id="collapse1" class="panel-collapse collapse">
+                        <ul class="list-group text-center">
+                          {%for class in Classes.query.filter_by(teacherid=current_user.id).all()%}
+                            {%for classmember in ClassMembers.query.filter_by(classid=class.id)%}
+                              <li class="list-group-item">
+                                <p>
+                                  Name:<span>{{Student.query.filter_by(id=classmember.studentid).first().name}}</span>
+                                </p>
+                                <p>
+                                  Lastname:<span>{{Student.query.filter_by(id=classmember.studentid).first().lastname}}</span>
+                                </p>
+                                <p>
+                                  Class:<span>{{className}}</span>
+                                </p>
+                                </li>
+                            {%endfor%}
+                          {%endfor%}
+                        </ul>
+                        <div class="panel-footer"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+            <!-- End Class Members -->
+            <!-- Classes you made -->
+            <div class="col-12">
+                <div class="panel-group">
+                    <div class="panel panel-default">
+                      <div class="panel-heading">
+                        <h4 class="panel-title text-center">
+                          <a data-toggle="collapse" href="#collapse2">Classes you made</a>
+                        </h4>
+                      </div>
+                      <div id="collapse2" class="panel-collapse collapse">
+                        <ul class="list-group text-center">
+                          {%for class in Classes.query.filter_by(teacherid=current_user.id).all()%}
+                          <li class="list-group-item">
+                              <p>Class Name:<span>{{class.className}}</span></p>
+                              <p>Class Key:<span>{{class.classKey}}</span></p>
+                              <p>Established at <span>{{class.dtime}}</span></p>
+                            </li>
+                          {%endfor%}
+                        </ul>
+                        <div class="panel-footer"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+            <!-- End Classes you made -->
+            <!-- build a class -->
+            <div class="col-12">
+                <div class="panel-group">
+                    <div class="panel panel-default">
+                      <div class="panel-heading">
+                        <h4 class="panel-title text-center">
+                          <a data-toggle="collapse" href="#collapse3">Build a class</a>
+                        </h4>
+                      </div>
+                      <div id="collapse3" class="panel-collapse collapse">
+                        <form id="build-class-form">
+                            <input type="hidden" name="teacherid"  value="{{current_user.id}}">
+                            <div class="form-group row">
+                              <div class="col-3 text-right">
+                                  <label for="ClassNameInput" class="col-form-label">Class Name</label>
+                              </div>
+                              <div class="col-10 col-sm-6 offset-1 mr-2 text-center">
+                                  <input type="text" class="form-control w-100" name="className" id="ClassNameInput" placeholder="Class Name " required>
+                              </div>
+
+                            <div class="col-3 text-right">
+                                <label for="ClassKeyInput" class="col-form-label">Class key</label>
+                            </div>
+                              <div class="col-10 col-sm-6 offset-1 mr-2 text-center">
+                                <input type="text" class="form-control w-100" name="classKey" id="ClassKeyInput" placeholder="Class key " required>
+                              </div>
+
+                              <div class="col-3 text-right">
+                                <label for="ClassPasswordInput" class="col-form-label">Class Password</label>
+                            </div>
+                              <div class="col-10 col-sm-6 offset-1 mr-2 text-center">
+                                <input type="text" class="form-control w-100" name="classPassword" id="ClassPasswordInput" placeholder="Class Password" required>
+                              </div>
+
+                              <div class="col-12 text-center mt-2">
+                                  <button type="submit" class="btn btn-md btn-primary" id="build-class-subimt">Build the class</button>
+                              </div>
+                            </div>
+                          </form>
+                        <div class="panel-footer"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+            <!-- End build a class -->
+            <!-- configured exams -->
+                <div class="col-12">
+                  <div class="panel-group">
+                      <div class="panel panel-default">
+                      <div class="panel-heading">
+                          <h4 class="panel-title text-center">
+                          <a data-toggle="collapse" href="#collapse4"> Configured exams</a>
+                          </h4>
+                      </div>
+                      <div id="collapse4" class="panel-collapse collapse text-center">
+                          {%for class in Classes.query.filter_by(teacherid=current_user.id).all()%}
+                              {%for exam in Exams.query.filter_by(classid=class.id).all()%}
+                              <div>
+                                  <p>
+                                      Exam Name:<span>{{exam.examName}}</span>-configured at <span>{{exam.dtime}}</span><br>
+                                      Exam Start:<span>{{exam.starttime}}</span>- End:{{exam.endtime}}
+
+                                  </p>
+                              </div>
+                              <hr>
+                              {%endfor%}
+                          {%endfor%}
+                          <div class="panel-footer"></div>
+                      </div>
+                      </div>
+                  </div>
+              </div>
+            <!-- end -->
+            <!--configure exam -->
+            <div class="col-12 text-center mt-2">
+                <form method="post" action="{{url_for('ConfigureExam')}}">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/> 
+                    <div>
+                        Configure exam for 
+                        <select name="examclassId" required>
+                            {%for class in Classes.query.filter_by(teacherid=current_user.id)%}
+                              <option value={{class.id}}>
+                                  {{class.className}}
+                              </option>
+                            {%endfor%}
+                        </select>
+                        class.
+                    </div>
+                    <div class="mt-2">
+                      <input type="text" name="examName" placeholder="Exam Name">
+                    </div>
+                    <div class="row">
+                      <div class="col-12 text-center mt-2">
+                        <label for="exam-start-date">Exam start date</label><input type="datetime-local" name="examStart" id="exam-start-date">
+                      </div>
+                      <div class="col-12 text-center mt-2">
+                        <label for="exam-start-date">Exam end date</label><input type="datetime-local" name="examEnd" id="exam-end-date">
+                      </div>
+                    </div>
+                    <button class="btn btn-md btn-primary mt-2" type="submit">Configure</button>
+                </form>
+                <!--end  -->
+                <hr>
+              </div>
+            </div>
+              <div class="row">
+                <!-- Configure exam's questions -->
+                  <div class="col-12 text-center mt-2">
+                    <form method="get" action="{{url_for('ConfigExamQuestions')}}">
+                        <div>
+                            <select name="examid" required>
+                              {%for class in Classes.query.filter_by(teacherid=current_user.id).all()%}
+                                {%for exam in Exams.query.filter_by(classid=class.id).all()%}
+                                  <option value={{exam.id}}>
+                                      Exam:{{exam.examName}}
+                                      /
+                                      Class:{{class.className}}
+                                  </option>
+                                {%endfor%}
+                              {%endfor%}
+                              </select>
+                        </div>
+                        <button class="btn btn-md btn-primary mt-2" type="submit">Configure quesions for exam</button>
+                    </form>
+                </div>
+            <!-- end -->
+            <hr class="mt-2">
+            <!-- Students report card -->
+            <div class="col-12 text-center mt-2">
+                <form action="{{url_for('StudentsReportCard')}}" method="get">
+                    <div>
+                        Observe students marks at 
+                        <select name="examid" required>
+                          {%for class in Classes.query.filter_by(teacherid=current_user.id).all()%}
+                            {%for exam in Exams.query.filter_by(classid=class.id)%}
+                              <option value="{{exam.id}}">{{exam.examName}}</option>
+                            {%endfor%}
+                          {%endfor%}
+                        </select>
+                        class.
+                    </div>
+                    <button class="btn btn-md btn-primary mt-2" type="submit">Observe marks</button>
+                </form>
+                <hr>
+            </div>
+            <!-- end -->
+            <!-- Delete an exam -->
+              <div class="col-12 text-center mt-4 mb-4">
+                  <form action="{{url_for('delExam')}}" method="post">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/> 
+                    <div>
+                        Delete exam
+                        <select name="examid" required>
+                          {%for class in Classes.query.filter_by(teacherid=current_user.id).all()%}
+                            {%for exam in Exams.query.filter_by(classid=class.id)%}
+                              <option value="{{exam.id}}">{{exam.examName}}</option>
+                            {%endfor%}
+                          {%endfor%}
+                        </select>
+                    </div>
+                    <button class="btn btn-md btn-primary mt-2" type="submit">delete</button>
+                </form>
+            <!-- end -->
+            <!-- Delete a class -->
+              <div class="col-12 text-center mt-2">
+                <form method="post" action="{{url_for('delClass')}}">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/> 
+                    <div>
+                        Delete class 
+                        <select name="classid" required>
+                            {%for class in Classes.query.filter_by(teacherid=current_user.id)%}
+                              <option value={{class.id}}>
+                                  {{class.className}}
+                              </option>
+                            {%endfor%}
+                        </select>
+                    </div>
+                    <button class="btn btn-md btn-primary mt-2" type="submit">delete</button>
+                </form>
+                <!--end  -->
+                <hr>
+              </div>
+            <!-- end -->
+          </div>
+        </div>
+    </body>
+</html>

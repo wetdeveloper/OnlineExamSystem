@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css"> -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+        <!-- <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet"> -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js" integrity="sha384-7+zCNj/IqJ95wo16oMtfsKbZ9ccEh31eOz1HGyDuCQ6wgnyJNSYdrPa03rtR1zdB" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js" integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13" crossorigin="anonymous"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+    </head>
+    <body>
+        <div class="bg-success text-warning text-center">
+            {{datetime.datetime.now()}}
+        </div>
+        <div class="row">
+            <!-- student details -->
+            <div class="col-12 text-center mt-4 mb-4">
+                <p>
+                    Student:{{student.name}} {{student.lastname}}
+                </p>
+             </div>
+            <div class="col-6 text-right mb-2">
+                <form action="{{url_for('logout',role='Student')}}" method="get">
+                    <button type="submit" class="btn btn-md btn-primary">Logout</button>
+                </form>
+            </div>
+            <div class="col-6  mb-2">
+                <form action="{{url_for('Home')}}">
+                    <button class="btn btn-md btn-primary mx-2">Home</button>
+              </form>
+            </div>
+        </div>
+            <!-- end -->
+
+            <!-- class student joined -->
+                <div class="col-12">
+                    <div class="panel-group">
+                        <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title text-center">
+                            <a data-toggle="collapse" href="#collapse1">Joined classes</a>
+                            </h4>
+                        </div>
+                        <div id="collapse1" class="panel-collapse collapse text-center">
+                            {%for classmember in ClassMembers.query.filter_by(studentid=student.id).all()%}
+                                <div>
+                                    <p>Class:<span>{{Classes.query.filter_by(id=classmember.classid).first().className}}</span></p>
+                                    <p>Joined at <span>{{classmember.dtime}}</span></p>
+                                </div>
+                                <hr>
+                            {%endfor%}
+                            <div class="panel-footer"></div>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+            <!-- end -->
+            <!-- Joined classes exams -->
+            <div class="col-12">
+                <div class="panel-group">
+                    <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title text-center">
+                        <a data-toggle="collapse" href="#collapse2">Exams</a>
+                        </h4>
+                    </div>
+                    <div id="collapse2" class="panel-collapse collapse text-center">
+                        {%for classmember in ClassMembers.query.filter_by(studentid=student.id).all()%}
+                            {%for exam in Exams.query.filter_by(classid=classmember.classid).all()%}
+                                {%if datetime.datetime.now() > exam.endtime %}
+                                    <div>
+                                        <p>
+                                            <form action="{{url_for('LoadExam')}}" method="get">
+                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                                <input type="hidden" name="examid" value="{{exam.id}}">
+                                                <input type="hidden" name="classid" value="{{classmember.classid}}">
+                                                Exam Name:<span>{{exam.examName}}</span>-exam configured at <span>{{exam.dtime}}</span><br>
+                                                Exam Start:<span>{{exam.starttime}}</span>- End:{{exam.endtime}}
+                                                <button type="submit" class="btn btn-lg btn-primary">Start the Exam</button>
+                                            </form>
+                                        </p>
+                                    </div>
+                                {%else%}
+                                <div>
+                                    <p>
+                                        Exam Name:<span>{{exam.examName}}</span>-exam configured at <span>{{exam.dtime}}</span><br>
+                                        Exam Start:<span>{{exam.starttime}}</span>- End:{{exam.endtime}}
+                                        <div class="w-100 text-center text-danger bg-secondary">
+                                            Exam is expired
+                                        </div>
+                                    </p>
+                                </div>
+                                {%endif%}
+                                <hr>
+                            {%endfor%}
+                        {%endfor%}
+                        <div class="panel-footer"></div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        <!-- end -->
+
+            <!-- join class form -->
+                <div class="col-12">
+                    <form action="{{url_for('JoinClass')}}" method="post">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <div class="form-group row mt-4">
+                        <div class="col-3 text-right">
+                            <label for="ClassKeydInput" class="col-form-label">Class Key</label>
+                        </div>
+                        <div class="col-10 col-sm-6 offset-1 mr-2 text-center mb-2">
+                            <input type="text" class="form-control w-100" name="classKey" id="ClassKeyInput" placeholder="Class Key" required>
+                        </div>
+
+                        <div class="col-3 text-right">
+                            <label for="ClassPasswordInput" class="col-form-label">Class Password</label>
+                        </div>
+                        <div class="col-10 col-sm-6 offset-1 mr-2 text-center">
+                            <input type="text" class="form-control w-100" name="classPassword" id="ClassPasswordInput" placeholder="Class Password" required>
+                        </div>
+
+                        <div class="col-12 text-center mt-2">
+                            <button type="submit" class="btn btn-md btn-primary">Join to the class</button>
+                        </div>
+                        </div>
+                    </form>
+                </div>
+            <!-- end -->
+
+            <!-- student exams history and marks -->
+                <div class="col-12">
+                    <div class="panel-group">
+                        <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title text-center">
+                            <a data-toggle="collapse" href="#collapse3">See your exams results</a>
+                            </h4>
+                        </div>
+                        <div id="collapse3" class="panel-collapse collapse text-center">
+                            {%for classmember in ClassMembers.query.filter_by(studentid=student.id).all()%}
+                                {%for exam in Exams.query.filter_by(classid=classmember.classid).all()%}
+                                <div>
+                                    <p>
+                                        <form action="{{url_for('ExamResult')}}" method="get">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                            <input type="hidden" name="examid" value="{{exam.id}}">
+                                            Class:<span>{{Classes.query.filter_by(id=exam.classid).first().className}}</span><br>
+                                            Exam Name:<span>{{exam.examName}}</span><br>exam configured at <span>{{exam.dtime}}</span><br>
+                                            Exam Start:<span>{{exam.starttime}}</span><br> End:<span>{{exam.endtime}}</span><br>
+                                            <button type="submit" class="btn btn-lg btn-primary">See exam result</button>
+                                        </form>
+                                    </p>
+                                </div>
+                                <hr>
+                                {%endfor%}
+                            {%endfor%}
+                            <div class="panel-footer"></div>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+            <!-- end -->
+        </div>
+    </body>
+</html>

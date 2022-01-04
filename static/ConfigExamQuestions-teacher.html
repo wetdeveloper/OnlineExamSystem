@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css"> -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+        <!-- <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet"> -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js" integrity="sha384-7+zCNj/IqJ95wo16oMtfsKbZ9ccEh31eOz1HGyDuCQ6wgnyJNSYdrPa03rtR1zdB" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js" integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13" crossorigin="anonymous"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script> 
+        <link href="css/student-portfo.css" rel="stylesheet">
+
+    </head>
+    <body>
+        <div class="row mt-2">
+            <div class="col-12 text-sm-center mt-2">
+                <p>
+                    <button class="btn btn-success btn-md mx-2">Home</button><button class="btn btn-md btn-primary mx-2">Logout</button>
+                </p>
+            </div>
+            <div class="userdetail col-12 text-center mt-2">
+                <p>
+                    Teacher:<span>{{teacher.name}}</span> <span>{{teacher.lastname}}</span>
+                </p>
+                <p>
+                    Class Name:{{_class.className}}
+                </p>
+                <p>
+                    Exam Name :{{exam.examName}}
+                </p>
+                <p>
+                    start:{{exam.starttime}}
+                </p>
+                <p>
+                    end:{{exam.endtime}}
+                </p>
+                <p>
+                    exam configured at <span> {{exam.dtime}}</span>
+                </p>
+                <hr>
+            </div>
+            <div class="col-12 text-center">
+                <span id="time"></span>
+                <script type="text/javascript">
+                    $(document).ready(function(){
+                        var today = new Date();
+                        var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+                        var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+                        var dateTime = date+' '+time;
+                        $("#time").html(dateTime)
+                    })
+                </script>
+            </div>
+        </div>
+        <!-- Exam config form -->
+        <div class="row text-center">
+            <p>
+                {{Questions.query.filter_by(examid=exam.id).count()}} questions configured for this exam till now.
+            </p>
+            <form action="{{url_for('ConfigExamQuestions')}}" method="post">
+                <input type="hidden" name="csrf_token" value="{{csrf_token()}}"/> 
+                <div class="col-12 mt-2">
+                    <input type="hidden" name="classid" value="{{_class.id}}">
+                    <input type="hidden" name="examid" value="{{exam.id}}">
+                    <input type="text" name="question" placeholder="question" required>
+                </div>
+                <div class="col-12 mt-2">
+                    <input type="text" name="option-1" placeholder="option-1" required>
+                </div>
+                <div class="col-12 mt-2">
+                    <input type="text" name="option-2" placeholder="option-2" required>
+                </div>
+                <div class="col-12 mt-2">
+                    <input type="text" name="option-3" placeholder="option-3" required>
+                </div>
+                <div class="col-12 mt-2">
+                    <input type="text" name="option-4" placeholder="option-4" required>
+                </div>
+                <div class="col-12 mt-2">
+                    <p>What option is determined as an answer?</p>
+                    1<input type="radio" name="correct-answer-order" value="1" required >
+                    2<input type="radio" name="correct-answer-order" value="2" required>
+                    3<input type="radio" name="correct-answer-order" value="3" required>
+                    4<input type="radio" name="correct-answer-order" value="4" required>
+                </div>
+                <div class="col-12 mt-2">
+                    <button type="submit" class="btn btn-lg btn-primary">Config</button>
+                </div>
+            </form>
+        </div>
+        <!-- End Exam config form -->
+    </body>
+</html>
