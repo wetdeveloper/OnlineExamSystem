@@ -72,7 +72,7 @@
                     <div id="collapse2" class="panel-collapse collapse text-center">
                         {%for classmember in ClassMembers.query.filter_by(studentid=student.id).all()%}
                             {%for exam in Exams.query.filter_by(classid=classmember.classid).all()%}
-                                {%if datetime.datetime.now() > exam.endtime %}
+                                {%if  exam.starttime<=datetime.datetime.now() and datetime.datetime.now() <= exam.endtime  %}
                                     <div>
                                         <p>
                                             <form action="{{url_for('LoadExam')}}" method="get">
@@ -85,7 +85,7 @@
                                             </form>
                                         </p>
                                     </div>
-                                {%else%}
+                                {%elif datetime.datetime.now()>exam.endtime%}
                                 <div>
                                     <p>
                                         Exam Name:<span>{{exam.examName}}</span>-exam configured at <span>{{exam.dtime}}</span><br>
